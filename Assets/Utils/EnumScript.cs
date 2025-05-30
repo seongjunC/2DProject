@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum Emblem
 {
-    Heart, spade, Clover, Diamond
+    Heart, Spade, Clover, Diamond
 }
 
 public enum SpecialDeco
