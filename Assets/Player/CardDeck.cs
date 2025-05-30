@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class CardDeck : MonoBehaviour
+public class CardDeck
 {
     public Card[,] Deck;
     public CardDeco Deco;
@@ -12,9 +12,20 @@ public class CardDeck : MonoBehaviour
     [SerializeField] public int[,] numOfCard { private set; get; }
     public Dictionary<Emblem, List<CardDeco>> EmblemLists;
 
-    void Start()
+    public CardDeck()
     {
-        Init();
+        Deck = new Card[4, 13];
+        numOfCard = new int[4, 13];
+
+        EmblemLists = new Dictionary<Emblem, List<CardDeco>>();
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 13; j++)
+            {
+                numOfCard[i, j] = 1;
+                Deck[i, j] = new Card((Emblem)i, j);
+            }
+        }
     }
 
     #region DecoSet/Get
@@ -88,22 +99,6 @@ public class CardDeck : MonoBehaviour
         numOfCard[(int)_em, _cardNum]--;
     }
     #endregion
-
-    private void Init()
-    {
-        Deck = new Card[4, 13];
-        numOfCard = new int[4, 13];
-
-        EmblemLists = new Dictionary<Emblem, List<CardDeco>>();
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 13; j++)
-            {
-                numOfCard[i, j] = 1;
-                Deck[i, j] = new Card((Emblem)i, j);
-            }
-        }
-    }
 
 
 }

@@ -4,17 +4,21 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    /// <param name="Chip">상점에서 물건을 구매할 수 있는 코인</param>
+    public int Chip { get; private set; }
+    public CardDeck Deck;
+    public List<Card> Hand;
+    public List<Card> Field;
+    public List<Card> Graveyard;
+
     void Start()
     {
-        MakeDeck();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        Deck = new CardDeck();
+        Chip = 0;
 
     }
-    private void MakeDeck()
+
+    void Draw(int _num)
     {
 
     }
