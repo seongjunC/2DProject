@@ -16,3 +16,8 @@ public enum GoodsStatus
 {
     Use, Gain
 }
+
+public enum CardStatus
+{
+    DeckList, BattleDeck, Hand, Graveyard
+}

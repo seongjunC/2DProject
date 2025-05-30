@@ -8,14 +8,20 @@ public class Card
     public Emblem Emblem { get; private set; }
     public int CardNum { get; private set; }
     public SpecialDeco deco;
+    public int order { get; private set; }
 
     public Card(Emblem _emblem, int _num) : this(_emblem, _num, SpecialDeco.none)
     {
     }
-    public Card(Emblem _emblem, int _num, SpecialDeco _deco)
+    public Card(Emblem _emblem, int _num, SpecialDeco _deco, int _order = 1)
     {
         Emblem = _emblem;
         CardNum = _num;
+        deco = _deco;
+        order = _order;
+    }
+    public void SetDeco(SpecialDeco _deco)
+    {
         deco = _deco;
     }
 

@@ -8,19 +8,24 @@ using UnityEngine.Events;
 public class CardDeck
 {
     public Card[,] Deck;
-    public CardDeco Deco;
     public int[,] SpecialNum;
     [SerializeField] public int[,] numOfCard { private set; get; }
-    public Dictionary<Emblem, List<CardDeco>> EmblemLists;
+    public Dictionary<Emblem, List<Card>> EmblemListDic;
     public Action<Card> OnCardAdded;
     public Action<Card> OnCardRemoved;
 
     public CardDeck()
     {
+        Init();
+    }
+
+    private void Init()
+    {
         Deck = new Card[4, 13];
         numOfCard = new int[4, 13];
 
-        EmblemLists = new Dictionary<Emblem, List<CardDeco>>();
+
+
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 13; j++)
@@ -28,6 +33,15 @@ public class CardDeck
                 numOfCard[i, j] = 1;
                 Deck[i, j] = new Card((Emblem)i, j);
             }
+        }
+    }
+
+    private void EmblemDicInit()
+    {
+        EmblemListDic = new Dictionary<Emblem, List<Card>>();
+        foreach (Emblem _em in Enum.GetValues(typeof(Emblem)))
+        {
+            EmblemListDic[_em] = new List<Card>();
         }
     }
 
@@ -48,35 +62,36 @@ public class CardDeck
             return;
         }
 
-        if (SearchDeco(_em, _cardNum, _order, out CardDeco OutDeco))
+        if (SearchDeco(_em, _cardNum, _order, out Card _card))
         {
-            if (OutDeco.DecoShape == _deco) return;
-            OutDeco.SetDeco(_deco);
+            if (_card.deco == _deco) return;
+            _card.SetDeco(_deco);
             return;
         }
-        EmblemLists[_em].Add(new CardDeco(_mod, _order, _deco));
+        EmblemListDic[_em].Add(new Card(_em, _mod, _deco, _order));
     }
 
     public SpecialDeco GetDeco(int _cardNum, int _order) => GetDeco((Emblem)(_cardNum / 13), _cardNum % 13, _order);
     ///<summary>
     /// 카드의 Deco를 반환한다. 해당 order의 카드의 Deco가 없으면 Deco.none으로 반환한다.
     ///</summary>
+
     public SpecialDeco GetDeco(Emblem _em, int _cardNum, int _order)
     {
-        if (SearchDeco(_em, _cardNum, _order, out CardDeco OutDeco)) return OutDeco.DecoShape;
-        return SpecialDeco.none;
+        SearchDeco(_em, _cardNum, _order, out Card _card);
+        return _card.deco;
     }
 
-    private bool SearchDeco(Emblem _em, int _cardNum, int _order, out CardDeco _deco)
+    private bool SearchDeco(Emblem _em, int _cardNum, int _order, out Card _card)
     {
-        foreach (CardDeco decos in EmblemLists[_em])
+        foreach (Card card in EmblemListDic[_em])
         {
-            if (decos.cardNum != _cardNum) continue;
-            if (decos.order != _order) continue;
-            _deco = decos;
+            if (card.CardNum != _cardNum) continue;
+            if (card.order != _order) continue;
+            _card = new Card(_em, _cardNum, card.deco, _order);
             return true;
         }
-        _deco = null;
+        _card = new Card(_em, _cardNum, SpecialDeco.none, _order);
         return false;
     }
     #endregion
@@ -102,10 +117,10 @@ public class CardDeck
         if (numOfCard[(int)_em, _cardNum] == 0) return;
         numOfCard[(int)_em, _cardNum]--;
 
-        if (SearchDeco(_em, _cardNum, _order, out CardDeco targetCard) &&
-        EmblemLists.TryGetValue(_em, out List<CardDeco> list))
+        if (SearchDeco(_em, _cardNum, _order, out Card _card) &&
+        EmblemListDic.TryGetValue(_em, out List<Card> list))
         {
-            list.Remove(targetCard);
+            list.Remove(_card);
         }
         OnCardRemoved?.Invoke(new Card(_em, _cardNum));
     }

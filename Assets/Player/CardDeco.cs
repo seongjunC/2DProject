@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardDeco
+/*public class CardDeco
+
 {
     public SpecialDeco DecoShape { private set; get; }
     public int order { get; private set; }
@@ -20,3 +21,4 @@ public class CardDeco
         DecoShape = _deco;
     }
 }
+*/
