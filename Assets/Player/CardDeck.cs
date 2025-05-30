@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CardDeck
 {
@@ -11,6 +12,8 @@ public class CardDeck
     public int[,] SpecialNum;
     [SerializeField] public int[,] numOfCard { private set; get; }
     public Dictionary<Emblem, List<CardDeco>> EmblemLists;
+    public Action<Card> OnCardAdded;
+    public Action<Card> OnCardRemoved;
 
     public CardDeck()
     {
@@ -52,7 +55,6 @@ public class CardDeck
             return;
         }
         EmblemLists[_em].Add(new CardDeco(_mod, _order, _deco));
-
     }
 
     public SpecialDeco GetDeco(int _cardNum, int _order) => GetDeco((Emblem)(_cardNum / 13), _cardNum % 13, _order);
@@ -86,19 +88,29 @@ public class CardDeck
     /// </summary>
     public void AddCard(Emblem _em, int _cardNum)
     {
-        numOfCard[(int)_em, _cardNum]++;
+        int _order = numOfCard[(int)_em, _cardNum]++;
+        SetDeco((int)_em * 13 + _cardNum, SpecialDeco.none, _order);
+        OnCardAdded?.Invoke(new Card(_em, _cardNum));
     }
 
-    public void RemoveCard(int _cardNum) => RemoveCard((Emblem)(_cardNum / 13), _cardNum % 13);
+    public void RemoveCard(int _cardNum, int _order) => RemoveCard((Emblem)(_cardNum / 13), _cardNum % 13, _order);
     /// <summary>
     /// 해당 카드가 덱에 있는지 확인하고 있다면 한장 제거한다.
     /// </summary>
-    public void RemoveCard(Emblem _em, int _cardNum)
+    public void RemoveCard(Emblem _em, int _cardNum, int _order)
     {
         if (numOfCard[(int)_em, _cardNum] == 0) return;
         numOfCard[(int)_em, _cardNum]--;
+
+        if (SearchDeco(_em, _cardNum, _order, out CardDeco targetCard) &&
+        EmblemLists.TryGetValue(_em, out List<CardDeco> list))
+        {
+            list.Remove(targetCard);
+        }
+        OnCardRemoved?.Invoke(new Card(_em, _cardNum));
     }
     #endregion
+
 
 
 }

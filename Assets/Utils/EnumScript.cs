@@ -12,3 +12,7 @@ public enum SpecialDeco
     none, Golden, Rare, Shiny, Red
 }
 
+public enum GoodsStatus
+{
+    Use, Gain
+}
