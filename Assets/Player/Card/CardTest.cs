@@ -15,7 +15,6 @@ public class CardTest : MonoBehaviour
         spriteArray = Resources.LoadAll<Sprite>("CardSprite/Playing_Cards");
         render = prefab.GetComponent<SpriteRenderer>();
         index = 0;
-
     }
 
     // Update is called once per frame

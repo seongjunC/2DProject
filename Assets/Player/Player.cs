@@ -4,23 +4,27 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player
 {
     /// <param name="Chip">상점에서 물건을 구매할 수 있는 코인</param>
     public int Chip { get; private set; }
     public BattleStat EquipmentStat;
     public CardDeck Deck;
+    public List<Card> Hand;
     public Dictionary<CardStatus, List<Card>> CardListDic;
+    public int flushNum = 5;
+    public int straightNum = 5;
+    public BattleStat stat;
 
-
-    void Start()
+    public void Init()
     {
         Deck = new CardDeck();
         CardDicInit();
-        DeckSetting();
+        ResetDeck();
+        stat = new BattleStat();
+        stat.Init();
         Deck.OnCardAdded += OnCardAddedDeck;
         Deck.OnCardRemoved += OnCardRemoveDeck;
-        Chip = 0;
     }
 
     private void CardDicInit()
@@ -30,9 +34,10 @@ public class Player : MonoBehaviour
         {
             CardListDic[_status] = new List<Card>();
         }
+        Hand = CardListDic[CardStatus.Hand];
     }
 
-    public void DeckSetting()
+    public void ResetDeck()
     {
         foreach (Card card in Deck.Deck)
         {
@@ -63,39 +68,56 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// 배틀을 시작할 때의 초기 설정
-    /// </summary>
-    /// <param name="startNum"> 시작할 때 패의 매수</param>
-    public void BattleSetting(BattleStat _stat)
-    {
-        List<Card> BattleDeck = CardListDic[CardStatus.BattleDeck];
-        CardListDic[CardStatus.BattleDeck] = CardListDic[CardStatus.DeckList].Select(card => card.Clone()).ToList();
-        Shuffle(BattleDeck);
-        Battle(_stat, BattleDeck);
-    }
-
-    public void Battle(BattleStat _stat, List<Card> BattleDeck)
-    {
-        Draw(_stat, BattleDeck);
-    }
-
-    /// <summary>
     /// 덱에서 핸드로 카드를 뽑아오고 배틀 덱에서 제거한다.
     /// </summary>
-    public void Draw(BattleStat _stat, List<Card> BattleDeck)
+    public void Draw() => Draw(stat.drawNum);
+
+    public void Draw(int _num)
     {
-        List<Card> Hand = CardListDic[CardStatus.Hand];
-        for (int i = 0; i < _stat.DrawNum; i++)
+        Hand = CardListDic[CardStatus.Hand];
+        for (int i = 0; i < _num; i++)
         {
-            Hand.Add(BattleDeck[0].Clone());
-            BattleDeck.RemoveAt(0);
+            Hand.Add(CardListDic[CardStatus.BattleDeck][0].Clone());
+            CardListDic[CardStatus.BattleDeck].RemoveAt(0);
+            if (CardListDic[CardStatus.BattleDeck].Count != 0) continue;
+            DeckRefill();
+            if (CardListDic[CardStatus.BattleDeck].Count == 0) break;
         }
+    }
+
+    public List<Card> GetHand()
+    {
+        return Hand;
+    }
+
+
+    public void Discard(List<Card> cards)
+    {
+        int _num = 0;
+        foreach (Card _card in cards)
+        {
+            CardListDic[CardStatus.Graveyard] = CardListDic[CardStatus.Hand]
+                .Select(card => card.Clone())
+                .ToList();
+            CardListDic[CardStatus.Hand].Remove(_card);
+            _num++;
+        }
+        Draw(_num);
+        stat.UseDiscard();
+    }
+
+    public void DeckRefill()
+    {
+        CardListDic[CardStatus.BattleDeck] = CardListDic[CardStatus.Graveyard]
+            .Select(card => card.Clone())
+            .ToList();
+        Shuffle(CardListDic[CardStatus.BattleDeck]);
     }
 
     /// <summary>
     /// Fisher-Yates Shuffle 알고리즘을 이용한 셔플
     /// </summary>
-    private void Shuffle<T>(List<T> list)
+    public void Shuffle<T>(List<T> list)
     {
         int n = list.Count;
 
@@ -115,4 +137,12 @@ public class Player : MonoBehaviour
         else return;
     }
 
+    public void BattleInit()
+    {
+        CardListDic[CardStatus.BattleDeck] =
+        CardListDic[CardStatus.DeckList]
+            .Select(card => card.Clone())
+            .ToList();
+        Shuffle(CardListDic[CardStatus.BattleDeck]);
+    }
 }

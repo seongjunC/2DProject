@@ -9,12 +9,14 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            if (instance == null)
+            if (_instance == null)
             {
                 _instance = FindObjectOfType<T>();
-                DontDestroyOnLoad(_instance);
+                GameObject go = new GameObject(typeof(T).Name);
+                _instance = go.AddComponent<T>();
+                DontDestroyOnLoad(go);
             }
-            return instance;
+            return _instance;
         }
     }
 

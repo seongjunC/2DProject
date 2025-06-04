@@ -31,7 +31,7 @@ public class CardDeck
             for (int j = 0; j < 13; j++)
             {
                 numOfCard[i, j] = 1;
-                Deck[i, j] = new Card((Emblem)i, j);
+                Deck[i, j] = new Card((Emblem)i, j + 1);
             }
         }
     }
